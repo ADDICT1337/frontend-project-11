@@ -2,24 +2,37 @@
 import * as yup from "yup"
 // import Example from './Example.js';
 import { watchState } from "./view.js";
-
+import i18next from "i18next";
+import ru from "./locales/ru.js";
 
 const validateForm = (newUrl, prevUrls) => {
   return yup
     .string()
-    .url()
-    .notOneOf(prevUrls)
-    .required()
+    .url("errors.invalidUrl")
+    .notOneOf(prevUrls, "errors.alreadyExists")
+    .required("errors.required")
     .validate(newUrl)
 }
 
 export default () => { 
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources: {
+      ru
+    }
+  });
+  
   const formElement = document.querySelector(".rss-form");
   const inputElement = document.querySelector("#url-input");
+  const errorElement = document.querySelector(".feedback");
+ 
 
   const elements = {
     form: formElement,
     input: inputElement,
+    error: errorElement,
   } 
 
   const initState = {
@@ -30,7 +43,7 @@ export default () => {
     allUrls: []
   }
 
-  const state = watchState(initState, elements); 
+  const state = watchState(initState, elements, i18nextInstance); 
  
   elements.form.addEventListener("submit", (e) => {
     e.preventDefault();
